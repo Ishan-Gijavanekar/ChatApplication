@@ -1,16 +1,21 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useChatStore } from '../store/useChatStore'
 import SidebarSkeleton from './skeletons/SidebarSkeleton';
 import { Users } from 'lucide-react';
+import { useAuthStore } from '../store/useAuthStore';
 
 const Sidebar = () => {
 
-  const {getUsers, users, setSelectedUser, selectedUser, isUsersLoading, onlineUsers} = useChatStore()
+  const {getUsers, users, setSelectedUser, selectedUser, isUsersLoading} = useChatStore()
+  const {onlineUsers} = useAuthStore()
+  const [showOnlineOnly, setshowOnlineOnly] = useState(false)
 
 
   useEffect(() => {
     getUsers()
   }, [getUsers])
+
+  const filteredUsers = showOnlineOnly ? users.filter(user => onlineUsers.includes(user._id)) : users
 
   if(isUsersLoading) {
     return <SidebarSkeleton />
@@ -23,10 +28,22 @@ const Sidebar = () => {
           <Users className='size-6' />
           <span className='font-medium hidden lg:block'>Contacts</span>
         </div>
+        <div className='mt-3 hidden lg:flex items-center gap-2'>
+          <label className='cursor-pointer flex items-center gap-2'>
+            <input 
+              type="checkbox"
+              checked={showOnlineOnly}
+              onChange={(e) => setshowOnlineOnly(e.target.checked)}
+              className='checkbox checkbox-sm' 
+            />
+            <span className='text-sm'>Show online Only</span>
+          </label>
+          <span className='text-sm text-zinc-500'>({onlineUsers.length - 1} online)</span>
+        </div>
       </div>
 
       <div className='overflow-y-auto w-full py-3'>
-        {users.map((user) => (
+        {filteredUsers.map((user) => (
           <button 
             key={user._id}
             onClick={() => setSelectedUser(user)}
@@ -53,6 +70,11 @@ const Sidebar = () => {
             </div>
           </button>
         ))}
+        {filteredUsers.length === 0 && (
+          <div className='text-center text-zinc-500 py-4'>
+            No online users
+          </div>
+        )}
       </div>
 
     </aside>

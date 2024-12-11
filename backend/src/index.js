@@ -3,9 +3,12 @@ import dotenv from 'dotenv'
 dotenv.config()
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import path from 'path'
 import { app,server }  from '../lib/socket.js'
 
 const port = process.env.PORT;
+
+const __dirname = path.resolve();
 
 
 app.use(express.json())
@@ -22,6 +25,14 @@ import { connectDb } from '../lib/db.js';
 
 app.use('/api/auth', authRoutes)
 app.use('/api/messages', messageRoutes)
+
+if(process.env.NODE_ENV === "production") {
+    app.use(express.static(path.join(__dirname,"../frontend")))
+
+    app.get("*", (req, res) => {
+        res.sendFile(path.join(__dirname, "..frontend" , "index.html"))
+    })
+}
 
 server.listen(port, () => {
     console.log(`Server is running on port ${port}`)

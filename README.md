@@ -114,7 +114,6 @@ npm start
 ## 🗄️ Database Models
 
 * `User`: Stores username, email, hashed password, online status
-* `Chat`: Holds chat room metadata and participant IDs
 * `Message`: Contains content, timestamp, sender ID, and chat ID
 
 ---
